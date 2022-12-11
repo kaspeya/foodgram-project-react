@@ -3,10 +3,9 @@ import uuid
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
+from recipe.models import Ingredient, Recipe, RecipeIngredient, Tag
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-
-from recipe.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import ROLES, Follow, User
 
 
