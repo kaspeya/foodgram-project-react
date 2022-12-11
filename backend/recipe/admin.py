@@ -1,21 +1,20 @@
-from django.contrib.admin import (
-    ModelAdmin, TabularInline, display, register, site)
+from django.contrib import admin
 from django.utils.safestring import mark_safe
 
 from .models import (FavoriteRecipe, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Tag)
 
-site.site_header = 'Администрирование Foodgram'
+admin.site.site_header = 'Администрирование Foodgram'
 EMPTY_VALUE_DISPLAY = 'Значение не указано'
 
 
-class IngredientInline(TabularInline):
+class IngredientInline(admin.TabularInline):
     model = RecipeIngredient
     extra = 10
 
 
-@register(Tag)
-class TagAdmin(ModelAdmin):
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
     save_on_top = True
     empty_value_display = EMPTY_VALUE_DISPLAY
     list_display = (
@@ -26,8 +25,8 @@ class TagAdmin(ModelAdmin):
     )
 
 
-@register(Ingredient)
-class IngredientAdmin(ModelAdmin):
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
     save_on_top = True
     empty_value_display = EMPTY_VALUE_DISPLAY
     list_display = (
@@ -39,8 +38,8 @@ class IngredientAdmin(ModelAdmin):
     )
 
 
-@register(Recipe)
-class RecipeAdmin(ModelAdmin):
+@admin.register(Recipe)
+class RecipeAdmin(admin.ModelAdmin):
     save_on_top = True
     empty_value_display = EMPTY_VALUE_DISPLAY
     list_display = (
@@ -60,17 +59,17 @@ class RecipeAdmin(ModelAdmin):
 
     inlines = (IngredientInline,)
 
-    @display(
+    @admin.display(
         description='Электронная почта автора')
     def get_author(self, obj):
         return obj.author.email
 
-    @display(description='Тэги')
+    @admin.display(description='Тэги')
     def get_tags(self, obj):
         list_ = [tag.name for tag in obj.tags.all()]
         return ', '.join(list_)
 
-    @display(description=' Ингредиенты ')
+    @admin.display(description=' Ингредиенты ')
     def get_ingredients(self, obj):
         return '\n '.join([
             f'{item["ingredient__name"]} - {item["amount"]}'
@@ -79,7 +78,7 @@ class RecipeAdmin(ModelAdmin):
                 'ingredient__name',
                 'amount', 'ingredient__measurement_unit')])
 
-    @display(description='В избранном')
+    @admin.display(description='В избранном')
     def get_favorite_count(self, obj):
         return obj.favorite_recipe.count()
 
@@ -89,34 +88,34 @@ class RecipeAdmin(ModelAdmin):
     get_image.short_description = 'Изображение'
 
 
-@register(FavoriteRecipe)
-class FavoriteRecipeAdmin(ModelAdmin):
+@admin.register(FavoriteRecipe)
+class FavoriteRecipeAdmin(admin.ModelAdmin):
     empty_value_display = EMPTY_VALUE_DISPLAY
     list_display = (
         'id', 'user', 'get_recipe', 'get_count')
 
-    @display(description='Рецепты')
+    @admin.display(description='Рецепты')
     def get_recipe(self, obj):
         return [
             f'{item["name"]} ' for item in obj.recipe.values('name')[:5]]
 
-    @display(
+    @admin.display(
         description='В избранных')
     def get_count(self, obj):
         return obj.recipe.count()
 
 
-@register(ShoppingCart)
-class SoppingCartAdmin(ModelAdmin):
+@admin.register(ShoppingCart)
+class SoppingCartAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'user', 'get_recipe', 'get_count')
     empty_value_display = EMPTY_VALUE_DISPLAY
 
-    @display(description='Рецепты')
+    @admin.display(description='Рецепты')
     def get_recipe(self, obj):
         return [
             f'{item["name"]} ' for item in obj.recipe.values('name')[:5]]
 
-    @display(description='В избранных')
+    @admin.display(description='В избранных')
     def get_count(self, obj):
         return obj.recipe.count()
