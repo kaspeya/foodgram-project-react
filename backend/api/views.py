@@ -30,10 +30,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = [IsAuthorOrReadOnly]
-    
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-    
+
     @action(detail=True, methods=['get', 'delete'],
             permission_classes=[IsAuthenticated])
     def favorite_recipe(self, request, pk=None):
@@ -42,7 +42,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         elif request.method == 'DELETE':
             return self.delete_obj(FavoriteRecipe, request.user, pk)
         return None
-    
+
     @action(detail=True, methods=['get', 'delete'],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk=None):
@@ -51,7 +51,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         elif request.method == 'DELETE':
             return self.delete_obj(ShoppingCart, request.user, pk)
         return None
-    
+
     @action(detail=False, methods=['get'],
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
