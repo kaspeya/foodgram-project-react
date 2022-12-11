@@ -40,7 +40,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite_recipe(self, request, pk=None):
         if request.method == 'GET':
             return self.add_obj(FavoriteRecipe, request.user, pk)
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             return self.delete_obj(FavoriteRecipe, request.user, pk)
         return None
 
@@ -49,7 +49,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def shopping_cart(self, request, pk=None):
         if request.method == 'GET':
             return self.add_obj(ShoppingCart, request.user, pk)
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             return self.delete_obj(ShoppingCart, request.user, pk)
         return None
 
