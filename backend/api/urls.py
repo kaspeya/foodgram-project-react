@@ -1,8 +1,9 @@
-from api.views import IngredientsViewSet, RecipeViewSet, TagsViewSet
 from django.urls import include, path
 from rest_framework import routers
 from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView, TokenVerifyView)
+
+from api.views import IngredientsViewSet, RecipeViewSet, TagsViewSet
 
 app_name = 'api'
 
