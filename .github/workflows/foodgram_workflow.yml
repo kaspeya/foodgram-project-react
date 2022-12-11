@@ -56,7 +56,7 @@ jobs:
       needs: build_and_push_to_docker_hub
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
       steps:
-      - name: executing remote ssh commands to deploy
+      - name: pull docker image
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -66,8 +66,18 @@ jobs:
           script: |
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-backend
+            cd infra/
             sudo docker-compose stop
             sudo docker-compose rm backend
+      - name: docker-compose up
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          script: |
+            cd infra/
             rm .env
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
