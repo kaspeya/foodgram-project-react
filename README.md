@@ -1,11 +1,9 @@
 ![example event parameter](https://github.com/kaspeya/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg?event=push)
 # FoodGram ( docker-compose )
 
-#### Проект доступен по следующим ссылкам:
+#### Проект доступен по ссылке:
 
-[Админка](http://130.193.36.243/admin/)<br/>
-[API](http://130.193.36.243/api/v1)<br/>
-Документация в формате [ReDoc](http://130.193.36.243/redoc)<br/>
+[клик](http://130.193.36.243/admin/)
 
 ## Описание: 
 
