@@ -1,4 +1,4 @@
-![example event parameter](https://github.com/kaspeya/foodgram-project-react/actions/workflowsfoodgram-project-react.yml/badge.svg?event=push)
+![example event parameter](https://github.com/kaspeya/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg?event=push)
 # FoodGram ( docker-compose )
 
 #### Проект доступен по следующим ссылкам:
