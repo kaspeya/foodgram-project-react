@@ -61,5 +61,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(
             ingredient_amount=Sum('amount')
         )
-        return generate_report(self, "shopping_list.pdf", 'Список ингредиентов',
-                               "amount", "measurement_unit")
+        return generate_report(
+            self, "shopping_list.pdf",
+            'Список ингредиентов', "amount", "measurement_unit"
+        )

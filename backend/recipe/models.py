@@ -157,7 +157,7 @@ class FavoriteRecipe(models.Model):
         on_delete=models.CASCADE,
         related_name='favorite_recipe',
         verbose_name='Избранный рецепт')
-    
+
     class Meta:
         constraints = [
             models.UniqueConstraint(

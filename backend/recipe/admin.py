@@ -13,11 +13,6 @@ class IngredientInline(admin.TabularInline):
     extra = 10
 
 
-class RecipeIngredientAdmin(admin.StackedInline):
-    model = RecipeIngredient
-    autocomplete_fields = ('ingredients',)
-
-
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     save_on_top = True
@@ -111,4 +106,3 @@ class SoppingCartAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'user',)
     empty_value_display = EMPTY_VALUE_DISPLAY
-

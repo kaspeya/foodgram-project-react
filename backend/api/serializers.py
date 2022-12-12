@@ -135,13 +135,13 @@ class RecipeSerializer(serializers.ModelSerializer):
         read_only=True)
     is_in_shopping_cart = serializers.BooleanField(
         read_only=True)
-    
+
     class Meta:
         model = Recipe
         fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
                   'is_in_shopping_cart', 'name', 'image', 'text',
                   'cooking_time')
-    
+
     def get_is_favorited(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:
@@ -157,11 +157,11 @@ class RecipeSerializer(serializers.ModelSerializer):
     def validate(self, data):
         cooking_time = self.initial_data.get('cooking_time')
         ingredients = self.initial_data.get('ingredients')
-        
+
         if not cooking_time or cooking_time < 0:
             raise serializers.ValidationError({
                 'cooking_time': 'Нужно указать время приготовления рецепта'})
-        
+
         if not ingredients:
             raise serializers.ValidationError({
                 'ingredients': 'Нужен хотя бы часть ингридиента для рецепта'})
@@ -185,7 +185,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             recipe=recipe,
             ingredient_id=ingredient.get('id'),
             amount=ingredient.get('amount'),
-            )
+        )
 
     def create_recipe(self, validated_data):
         image = validated_data.pop('image')
