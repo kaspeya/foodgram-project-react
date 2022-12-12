@@ -8,10 +8,10 @@ from recipe.models import Ingredient
 
 
 class Command(BaseCommand):
-    help = "Import from `../data/ingredients.csv`"
+    help = "Import from `../data/ingredients.json`"
 
     def handle(self, *args, **kwargs):
-        with open(os.path.join(settings.BASE_DIR, 'data/ingredients.csv'),
+        with open(os.path.join(settings.BASE_DIR, 'data/ingredients.json'),
                   encoding='utf-8') as csvfile:
             csvreader = csv.reader(csvfile)
             next(csvreader)

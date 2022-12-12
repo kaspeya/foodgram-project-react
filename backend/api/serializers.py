@@ -95,13 +95,13 @@ class FollowSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = '__all__'
+        fields = ('id', 'name', 'hex_color_code', 'slug')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
-        fields = '__all__'
+        fields = ('id', 'name', 'measurement_unit')
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
@@ -113,7 +113,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RecipeIngredient
-        fields = ('id', 'name', 'measurement_unit', 'amount')
+        fields = ('id', 'name', 'measurement_unit')
         validators = [
             UniqueTogetherValidator(
                 queryset=RecipeIngredient.objects.all(),
@@ -131,15 +131,17 @@ class RecipeSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
     )
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
-
+    is_favorited = serializers.BooleanField(
+        read_only=True)
+    is_in_shopping_cart = serializers.BooleanField(
+        read_only=True)
+    
     class Meta:
         model = Recipe
         fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
                   'is_in_shopping_cart', 'name', 'image', 'text',
                   'cooking_time')
-
+    
     def get_is_favorited(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:
@@ -153,38 +155,42 @@ class RecipeSerializer(serializers.ModelSerializer):
         return Recipe.objects.filter(cart__user=user, id=obj.id).exists()
 
     def validate(self, data):
+        cooking_time = self.initial_data.get('cooking_time')
         ingredients = self.initial_data.get('ingredients')
+        
+        if not cooking_time or cooking_time < 0:
+            raise serializers.ValidationError({
+                'cooking_time': 'Нужно указать время приготовления рецепта'})
+        
         if not ingredients:
             raise serializers.ValidationError({
-                'ingredients': 'Нужен хотя бы 1/2 ингридиента для рецепта'})
+                'ingredients': 'Нужен хотя бы часть ингридиента для рецепта'})
         ingredient_list = []
         for ingredient_item in ingredients:
             ingredient = get_object_or_404(Ingredient,
                                            id=ingredient_item['id'])
             if ingredient in ingredient_list:
-                raise serializers.ValidationError('Ингридиенты не должны '
+                raise serializers.ValidationError('Ингредиенты не должны '
                                                   'повторяться')
             ingredient_list.append(ingredient)
             if int(ingredient_item['amount']) < 0:
                 raise serializers.ValidationError({
                     'ingredients': ('Убедитесь, что количество '
-                                    'ингредиента больше 0')
+                                    'ингредиента больше нуля')
                 })
-        data['ingredients'] = ingredients
         return data
 
-    def create_ingredients(self, ingredients, recipe):
-        for ingredient in ingredients:
-            RecipeIngredient.objects.create(
-                recipe=recipe,
-                ingredient_id=ingredient.get('id'),
-                amount=ingredient.get('amount'),
+    def create_ingredients(self, ingredient, recipe):
+        RecipeIngredient.objects.bulk_create(
+            recipe=recipe,
+            ingredient_id=ingredient.get('id'),
+            amount=ingredient.get('amount'),
             )
 
     def create_recipe(self, validated_data):
         image = validated_data.pop('image')
-        ingredients_data = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(image=image, **validated_data)
+        ingredients_data = validated_data.pop('ingredients', required=True)
+        recipe = Recipe.objects.bulk_create(image=image, **validated_data)
         tags_data = self.initial_data.get('tags')
         recipe.tags.set(tags_data)
         self.create_ingredients(ingredients_data, recipe)

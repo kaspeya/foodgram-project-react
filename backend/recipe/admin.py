@@ -13,28 +13,39 @@ class IngredientInline(admin.TabularInline):
     extra = 10
 
 
+class RecipeIngredientAdmin(admin.StackedInline):
+    model = RecipeIngredient
+    autocomplete_fields = ('ingredients',)
+
+
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     save_on_top = True
     empty_value_display = EMPTY_VALUE_DISPLAY
-    list_display = (
-        'id', 'name', 'hex_color_code', 'slug',
-    )
-    search_fields = (
-        'id', 'name', 'hex_color_code'
-    )
+    list_display = ('id', 'name', 'hex_color_code', 'slug')
+    search_fields = ('id', 'name', 'hex_color_code', 'slug')
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     save_on_top = True
     empty_value_display = EMPTY_VALUE_DISPLAY
+    list_display = ('id', 'name', 'measurement_unit',)
+    search_fields = ('id', 'name',)
+    list_filter = ('name',)
+    fields = ('name', 'measurement_unit',)
+
+
+@admin.register(RecipeIngredient)
+class RecipeIngredientAdmin(admin.ModelAdmin):
+    empty_value_display = EMPTY_VALUE_DISPLAY
     list_display = (
-        'id', 'name', 'measurement_unit',)
+        'id', 'recipe', 'ingredient', 'amount')
     search_fields = (
-        'id', 'name',)
+        'id', 'recipe', 'ingredient'
+    )
     list_filter = (
-        'id', 'name'
+        'id', 'recipe', 'ingredient'
     )
 
 
@@ -43,34 +54,34 @@ class RecipeAdmin(admin.ModelAdmin):
     save_on_top = True
     empty_value_display = EMPTY_VALUE_DISPLAY
     list_display = (
-        'id', 'get_author', 'title', 'text',
-        'cooking_time', 'get_tags', 'get_ingredients',
+        'id', 'get_author', 'name', 'text',
+        'cooking_time', 'get_tags', 'get_ingredient',
         'pub_date', 'get_favorite_count')
     search_fields = (
-        'title', 'cooking_time',
-        'author__email', 'ingredients__name')
-    list_filter = ('pub_date', 'tag', 'author__username')
+        'name', 'cooking_time',
+        'author__email', 'ingredient__name')
+    list_filter = ('pub_date', 'tags',)
+    list_filter = ('name', 'tags', 'author__username')
     fields = (
-        ('title', 'cooking_time',),
+        ('name', 'cooking_time',),
         ('author', 'tags',),
         ('text',),
         ('image',),
     )
-
     inlines = (IngredientInline,)
 
     @admin.display(
-        description='Электронная почта автора')
+        description='автор')
     def get_author(self, obj):
-        return obj.author.email
+        return obj.author.username
 
     @admin.display(description='Тэги')
     def get_tags(self, obj):
-        list_ = [tag.name for tag in obj.tags.all()]
+        list_ = [_.name for _ in obj.tags.all()]
         return ', '.join(list_)
 
     @admin.display(description=' Ингредиенты ')
-    def get_ingredients(self, obj):
+    def get_ingredient(self, obj):
         return '\n '.join([
             f'{item["ingredient__name"]} - {item["amount"]}'
             f' {item["ingredient__measurement_unit"]}.'
@@ -92,30 +103,12 @@ class RecipeAdmin(admin.ModelAdmin):
 class FavoriteRecipeAdmin(admin.ModelAdmin):
     empty_value_display = EMPTY_VALUE_DISPLAY
     list_display = (
-        'id', 'user', 'get_recipe', 'get_count')
-
-    @admin.display(description='Рецепты')
-    def get_recipe(self, obj):
-        return [
-            f'{item["name"]} ' for item in obj.recipe.values('name')[:5]]
-
-    @admin.display(
-        description='В избранных')
-    def get_count(self, obj):
-        return obj.recipe.count()
+        'id', 'user',)
 
 
 @admin.register(ShoppingCart)
 class SoppingCartAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'user', 'get_recipe', 'get_count')
+        'id', 'user',)
     empty_value_display = EMPTY_VALUE_DISPLAY
 
-    @admin.display(description='Рецепты')
-    def get_recipe(self, obj):
-        return [
-            f'{item["name"]} ' for item in obj.recipe.values('name')[:5]]
-
-    @admin.display(description='В избранных')
-    def get_count(self, obj):
-        return obj.recipe.count()
