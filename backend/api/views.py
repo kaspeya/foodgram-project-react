@@ -6,7 +6,6 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from recipe.models import (FavoriteRecipe, Ingredient, Recipe,
                            RecipeIngredient, ShoppingCart, Tag)
-
 from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 from .utils import generate_report
@@ -62,6 +61,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ingredient_amount=Sum('amount')
         )
         return generate_report(
-            self, "shopping_list.pdf",
-            'Список ингредиентов', "amount", "measurement_unit"
+            self, 'shopping_list.pdf',
+            'Список ингредиентов', 'amount', 'measurement_unit'
         )

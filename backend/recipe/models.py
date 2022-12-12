@@ -130,7 +130,7 @@ class RecipeIngredient(models.Model):
         default=0,
         validators=(
             validators.MinValueValidator(
-                0.5, message='Минимальное количество ингридиентов 0.5'),
+                1, message='Минимальное количество ингридиентов 1'),
             validators.MaxValueValidator(
                 10000,
                 message='Максимально количество ингридиентов - 100')
@@ -169,10 +169,6 @@ class FavoriteRecipe(models.Model):
         verbose_name_plural = 'Избранные рецепты'
         ordering = ['-id']
 
-    # def __str__(self):
-    #     list_ = [item['name'] for item in self.recipe.values('name')]
-    #     return f'Пользователь {self.user} добавил {list_} в избранные.'
-
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(
@@ -198,7 +194,3 @@ class ShoppingCart(models.Model):
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
         ordering = ['-id']
-
-    # def __str__(self):
-    #     list_ = [item['name'] for item in self.recipe.values('name')]
-    #     return f'Пользователь {self.user} добавил {list_} в список покупок.'
