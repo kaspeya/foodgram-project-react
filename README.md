@@ -38,17 +38,17 @@ docker-compose up
 ``` 
 docker-compose up -d --build
 ``` 
-В контейнере web выполните миграции:
+В контейнере backend  выполните миграции:
 ``` 
-docker-compose exec web python manage.py migrate
+docker-compose exec backend  python manage.py migrate
 ``` 
 Создатйте суперпользователя:
 ``` 
-docker-compose exec web python manage.py createsuperuser
+docker-compose exec backend  python manage.py createsuperuser
 ``` 
 Соберите статику:
 ``` 
-docker-compose exec web python manage.py collectstatic --no-input
+docker-compose exec backend  python manage.py collectstatic --no-input
 ``` 
 Проект запущен и доступен по адресу: localhost
 
