@@ -1,7 +1,7 @@
 version: '3.3'
 services:
   db:
-    image: postgres:13.0-alpine
+    image: postgres:13.4
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
@@ -23,6 +23,8 @@ services:
     restart: always
     volumes:
       - ../frontend/:/app/result_build/
+    depends_on:
+      - db
 
   nginx:
     image: nginx:1.19.3
@@ -42,4 +44,3 @@ volumes:
   postgres_data:
   static_value:
   media_value:
-

@@ -1,11 +1,11 @@
 from django.db.models.aggregates import Sum
+from recipe.models import (FavoriteRecipe, Ingredient, Recipe,
+                           RecipeIngredient, ShoppingCart, Tag)
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from recipe.models import (FavoriteRecipe, Ingredient, Recipe,
-                           RecipeIngredient, ShoppingCart, Tag)
 from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 from .utils import generate_report
