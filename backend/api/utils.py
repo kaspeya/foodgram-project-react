@@ -4,7 +4,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
 
-def generate_report(filename, string, data1, data2):
+def generate_report(self, filename, string, data1, data2):
     final_list = {}
     pdfmetrics.registerFont(TTFont('Slimamif', 'Slimamif.ttf', 'UTF-8'))
     response = HttpResponse(content_type='application/pdf')

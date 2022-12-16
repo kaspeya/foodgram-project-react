@@ -124,7 +124,6 @@ class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='ingredient',
         verbose_name='Ингридиент',
     )
     amount = models.PositiveSmallIntegerField(
@@ -142,11 +141,6 @@ class RecipeIngredient(models.Model):
         verbose_name = 'Количество ингредиента'
         verbose_name_plural = 'Количество ингредиентов'
         ordering = ['-id']
-        constraints = [
-            models.UniqueConstraint(
-                fields=['ingredient', 'recipe'],
-                name='unique ingredients recipe'
-            )]
 
     def __str__(self):
         return f'{self.amount} {self.ingredient}'
