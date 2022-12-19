@@ -39,7 +39,10 @@ class User(AbstractUser):
         default=USER
     )
 
-    confirmation_code = models.CharField(max_length=255)
+    password = models.CharField(
+        verbose_name='Пароль',
+        max_length=150
+    )
 
     class Meta:
         verbose_name = 'Пользователь'

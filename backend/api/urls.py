@@ -1,27 +1,19 @@
 from django.urls import include, path
 from rest_framework import routers
-from rest_framework_simplejwt.views import (TokenObtainPairView,
-                                            TokenRefreshView, TokenVerifyView)
 
-from api.views import IngredientsViewSet, RecipeViewSet, TagsViewSet
+from api.views import (IngredientsViewSet, RecipeViewSet, TagsViewSet,
+                       UserViewSet)
 
 app_name = 'api'
 
 router = routers.DefaultRouter()
-router.register('tags', TagsViewSet)
-router.register('ingredients', IngredientsViewSet)
-router.register('recipes', RecipeViewSet)
+router.register('users', UserViewSet, basename='users')
+router.register('tags', TagsViewSet, basename='tags')
+router.register('ingredients', IngredientsViewSet, basename='ingredients')
+router.register('recipes', RecipeViewSet, basename='recipes')
 
 urlpatterns = [
     path('', include(router.urls)),
-]
-
-urlpatterns = [
-    path('v1/', include(router.urls)),
-    path('v1/jwt/create/', TokenObtainPairView.as_view(),
-         name='token_obtain_pair'),
-    path('v1/jwt/refresh/', TokenRefreshView.as_view(),
-         name='token_refresh'),
-    path('v1/jwt/verify/', TokenVerifyView.as_view(),
-         name='token_verify')
+    path('', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
 ]

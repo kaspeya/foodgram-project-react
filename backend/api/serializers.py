@@ -1,5 +1,3 @@
-import uuid
-
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
@@ -12,25 +10,37 @@ from users.models import ROLES, Follow, User
 
 class UserSerializer(serializers.ModelSerializer):
     role = serializers.ChoiceField(choices=ROLES, default='user')
+    get_is_followed_by = serializers.SerializerMethodField()
 
     class Meta:
+        model = User
         fields = (
+            'id',
             'username',
             'email',
             'first_name',
             'last_name',
-            'bio',
-            'role'
+            'password',
+            'is_followed_by'
         )
-        model = User
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def get_is_followed_by(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return Follow.objects.filter(user=user, author=obj.id).exists()
 
     def create(self, validated_data):
-        email = validated_data['email']
-        confirmation_code = str(uuid.uuid3(uuid.NAMESPACE_X500, email))
-        return User.objects.create(
-            **validated_data,
-            confirmation_code=confirmation_code
+        user = User(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
         )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
 
     def validate(self, value):
         if value is None or value == '':
@@ -38,15 +48,6 @@ class UserSerializer(serializers.ModelSerializer):
                 f'Поле {value} обязательно для заполнения!'
             )
         return value
-
-
-class MeSerializer(UserSerializer):
-    role = serializers.CharField(read_only=True)
-
-
-class SignUpSerializer(serializers.Serializer):
-    email = serializers.EmailField(max_length=254, required=True)
-    username = serializers.CharField(max_length=150)
 
     def validate_username(self, name):
         if name == settings.USER_ME:
@@ -56,29 +57,24 @@ class SignUpSerializer(serializers.Serializer):
         return name
 
 
-class AuthSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=150)
-    confirmation_code = serializers.CharField(max_length=255)
-
-
-class FollowSerializer(serializers.ModelSerializer):
+class FollowSerializer(UserSerializer):
     user = serializers.SlugRelatedField(
         queryset=User.objects.all(),
         slug_field='username',
         default=serializers.CurrentUserDefault()
     )
-    following = serializers.SlugRelatedField(
+    author = serializers.SlugRelatedField(
         queryset=User.objects.all(),
         slug_field='username'
     )
 
     class Meta:
         model = Follow
-        fields = ('id', 'user', 'following')
+        fields = ('id', 'user', 'author')
         validators = [
             UniqueTogetherValidator(
                 queryset=Follow.objects.all(),
-                fields=('user', 'following')
+                fields=('user', 'author')
             )
         ]
 
