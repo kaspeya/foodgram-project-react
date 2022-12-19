@@ -8,8 +8,6 @@ services:
       - ./.env
 
   backend:
-    build:
-       context: ../backend
     image: kaspeya/foodgram_backend:latest
     restart: always
     volumes:
