@@ -1,18 +1,12 @@
 from django.contrib.auth import get_user_model
 from django.core import validators
 from django.db import models
-from django.db.models import ManyToManyField
 
 User = get_user_model()
 
 
 class Ingredient(models.Model):
     name = models.CharField('Название ингредиента', max_length=200)
-    amount = models.PositiveSmallIntegerField(
-        null=True,
-        blank=True,
-        verbose_name='Количество'
-    )
     measurement_unit = models.CharField('Единица измерения', max_length=50)
 
     class Meta:
@@ -32,7 +26,7 @@ class Tag(models.Model):
     )
     hex_color_code = models.CharField(
         'Цветовой HEX-код',
-        max_length=10,
+        max_length=7,
         blank=True,
         null=True,
         default='#49B64E'
@@ -45,10 +39,9 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
-        ordering = ['-id']
 
     def __str__(self):
-        return f'{self.name} (цвет: {self.hex_color_code})'
+        return self.slug
 
 
 class Recipe(models.Model):
@@ -67,19 +60,16 @@ class Recipe(models.Model):
         verbose_name='Изображение блюда',
         upload_to='static/recipe/',
         null=True,
-        blank=True
     )
-    text = models.TextField('Текстовое описание рецепта')
+    text = models.TextField('Описание рецепта')
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
-        verbose_name='Ингридиенты',
+        verbose_name='Ингредиенты',
         related_name='recipe',
-        blank=True
     )
     tags = models.ManyToManyField(
         Tag,
-        blank=True,
         related_name='recipe',
         verbose_name='Теги'
     )
@@ -96,17 +86,6 @@ class Recipe(models.Model):
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
-    favorite = ManyToManyField(
-        verbose_name='Понравившиеся рецепты',
-        related_name='favorites',
-        to=User,
-    )
-    cart = ManyToManyField(
-        verbose_name='Список покупок',
-        related_name='carts',
-        to=User,
-    )
-
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
@@ -120,30 +99,34 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe')
+        related_name='recipe',
+        verbose_name='Рецепт'
+    )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        verbose_name='Ингридиент',
+        verbose_name='Ингредиент'
     )
     amount = models.PositiveSmallIntegerField(
         default=0,
         validators=(
             validators.MinValueValidator(
-                1, message='Минимальное количество ингридиентов 1'),
+                1, message='Минимальное количество ингредиентов 1'),
             validators.MaxValueValidator(
                 10000,
-                message='Максимально количество ингридиентов - 100')
+                message='Максимально количество ингредиентов - 100')
         ),
         verbose_name='Количество',)
 
     class Meta:
         verbose_name = 'Количество ингредиента'
         verbose_name_plural = 'Количество ингредиентов'
-        ordering = ['-id']
+        constraints = [models.UniqueConstraint(
+            fields=['ingredient', 'recipe'],
+            name='unique_recipe_ingredient')]
 
     def __str__(self):
-        return f'{self.amount} {self.ingredient}'
+        return f'{self.recipe} - {self.ingredient}'
 
 
 class FavoriteRecipe(models.Model):
@@ -159,15 +142,11 @@ class FavoriteRecipe(models.Model):
         verbose_name='Избранный рецепт')
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='Проверка повторного добавления рецепта в избранные',
-            )
-        ]
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
-        ordering = ['-id']
+        constraints = [models.UniqueConstraint(
+            fields=['user', 'recipe'],
+            name='Проверка повторного добавления рецепта в избранные')]
 
 
 class ShoppingCart(models.Model):
@@ -185,12 +164,8 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='Проверка повторного добавления рецепта в корзину',
-            )
-        ]
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
-        ordering = ['-id']
+        constraints = [models.UniqueConstraint(
+            fields=['user', 'recipe'],
+            name='Проверка повторного добавления рецепта в корзину')]
