@@ -13,8 +13,8 @@ from .models import (FavoriteRecipe, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Tag)
 from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .serializers import (CropRecipeSerializer, IngredientSerializer,
-                          RecipeSerializer, TagSerializer,
-                          RecipeCreateSerializer)
+                          RecipeCreateSerializer, RecipeSerializer,
+                          TagSerializer)
 from .utils import generate_report
 
 User = get_user_model()
