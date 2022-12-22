@@ -10,7 +10,6 @@ EMPTY_VALUE_DISPLAY = 'Значение не указано'
 class IngredientsInline(admin.TabularInline):
     empty_value_display = EMPTY_VALUE_DISPLAY
     model = RecipeIngredient
-    extra = 5
 
 
 @admin.register(Tag)
@@ -31,12 +30,12 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     empty_value_display = EMPTY_VALUE_DISPLAY
-    list_display = ('id', 'name', 'author', 'in_favorite')
+    list_display = ('id', 'name', 'author', 'get_favorite_count')
     list_filter = ['name', 'author', 'tags']
     inlines = [IngredientsInline]
 
-    def in_favorite(self, obj):
-        return obj.favorite_recipe.all().count()
+    def get_favorite_count(self, obj):
+        return obj.favorite_recipes.count()
 
 
 @admin.register(FavoriteRecipe)

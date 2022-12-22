@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.db.models.aggregates import Sum
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -11,10 +10,9 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from .filters import IngredientFilter, RecipesFilter
 from .models import (FavoriteRecipe, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Tag)
+from .pagination import LimitPageNumberPagination
 from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
-from .serializers import (CropRecipeSerializer, IngredientSerializer,
-                          RecipeCreateSerializer, RecipeSerializer,
-                          TagSerializer)
+from .serializers import RecipeSerializer, IngredientSerializer, TagSerializer
 from .utils import generate_report
 
 User = get_user_model()
@@ -27,7 +25,7 @@ class TagsViewSet(ReadOnlyModelViewSet):
 
 
 class IngredientsViewSet(ReadOnlyModelViewSet):
-    permission_classes = (IsAuthorOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     search_fields = ('^name',)
@@ -40,30 +38,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthorOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipesFilter
+    pagination_class = LimitPageNumberPagination
 
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return RecipeSerializer
-        return RecipeCreateSerializer
-
-    def add_user_recipe(self, model, user, pk):
-        if model.objects.filter(user=user, recipe__id=pk).exists():
-            return Response({
-                'errors': 'Рецепт уже добавлен в список.'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        recipe = get_object_or_404(Recipe, id=pk)
-        model.objects.create(user=user, recipe=recipe)
-        serializer = CropRecipeSerializer(recipe)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    def delete_user_recipe(self, model, user, pk):
-        user_recipe = model.objects.filter(user=user, recipe__id=pk)
-        if user_recipe.exists():
-            user_recipe.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({
-            'errors': 'Рецепт уже удален.'
-        }, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
     @action(detail=True, methods=['get', 'delete'],
             permission_classes=[IsAuthenticated])
@@ -94,3 +72,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(total=Sum('amount'))
 
         return generate_report(ingredients_list)
+
+    def add_user_recipe_model(self, user, recipe, model_class, serializer_class):
+        if model_class.objects.filter(user=user, recipe=recipe).exists():
+            return Response({'errors': 'Этот рецепт уже добавлен в список.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        model = model_class.objects.create(user=user, recipe=recipe)
+        serializer = serializer_class(model)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete_user_recipe_model(self, user, recipe, model_class):
+        model = model_class.objects.filter(user=user, recipe=recipe)
+        if not model.exists():
+            return Response({"error": 'Рецепт уже удален.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        model.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

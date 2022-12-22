@@ -38,6 +38,7 @@ class CropRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
+        read_only_fields = '__all__',
 
 
 class SubscriptionSerializer(serializers.ModelSerializer, CommonSubscribed):
@@ -46,12 +47,11 @@ class SubscriptionSerializer(serializers.ModelSerializer, CommonSubscribed):
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+        fields = ('email', 'id',  'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count')
 
     def get_recipes(self, author):
-        recipes_limit = int(
-            self.context['request'].GET.get('recipes_limit', 5))
+        recipes_limit = int(self.context['request'].GET.get('recipes_limit', 5))
         recipes = Recipe.objects.filter(author=author)[:recipes_limit]
 
         return CropRecipeSerializer(recipes, many=True).data

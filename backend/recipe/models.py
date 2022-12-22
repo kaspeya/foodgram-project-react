@@ -15,7 +15,7 @@ class Ingredient(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        return f'{self.name} {self.measurement_unit}.'
+        return self.name
 
 
 class Tag(models.Model):
@@ -39,6 +39,7 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
+        ordering = ['-id']
 
     def __str__(self):
         return self.slug
@@ -53,24 +54,22 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         verbose_name='Название блюда',
-        max_length=200,
-        unique=True
+        max_length=200
     )
     image = models.ImageField(
         verbose_name='Изображение блюда',
-        upload_to='static/recipe/',
-        null=True,
+        upload_to='static/recipe/'
     )
     text = models.TextField('Описание рецепта')
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
         verbose_name='Ингредиенты',
-        related_name='recipe',
+        related_name='recipes',
     )
     tags = models.ManyToManyField(
         Tag,
-        related_name='recipe',
+        related_name='recipes',
         verbose_name='Теги'
     )
     cooking_time = models.PositiveSmallIntegerField(
@@ -78,7 +77,7 @@ class Recipe(models.Model):
         validators=[
             validators.MinValueValidator(
                 1,
-                message='Мин. значение времени приготовления - 1 минута'),
+                message='Нужно указать время приготовления рецепта.'),
             validators.MaxValueValidator(
                 1000,
                 message='Макс. допустимое время приготовления - 1000 минут')
@@ -99,7 +98,6 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe',
         verbose_name='Рецепт'
     )
     ingredient = models.ForeignKey(
@@ -119,6 +117,7 @@ class RecipeIngredient(models.Model):
         verbose_name='Количество',)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'Количество ингредиента'
         verbose_name_plural = 'Количество ингредиентов'
         constraints = [models.UniqueConstraint(
@@ -133,12 +132,11 @@ class FavoriteRecipe(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='favorite_recipe',
         verbose_name='Пользователь')
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorite_recipe',
+        related_name='favorite_recipes',
         verbose_name='Избранный рецепт')
 
     class Meta:
@@ -164,5 +162,10 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'recipe'],
+                                    name='unique cart user')
+        ]

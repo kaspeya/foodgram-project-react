@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import Subscription
 from .serializers import SubscriptionSerializer
+from recipe.pagination import LimitPageNumberPagination
 
 User = get_user_model()
 
@@ -12,6 +13,7 @@ User = get_user_model()
 class SubscriptionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = SubscriptionSerializer
+    pagination_class = LimitPageNumberPagination
 
     def get_queryset(self):
         return get_list_or_404(User, author__user=self.request.user)
