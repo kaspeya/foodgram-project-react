@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from rest_framework import serializers
-
 from recipe.models import Recipe
+from rest_framework import serializers
 
 from .models import Subscription
 
@@ -47,11 +46,14 @@ class SubscriptionSerializer(serializers.ModelSerializer, CommonSubscribed):
 
     class Meta:
         model = User
-        fields = ('email', 'id',  'username', 'first_name', 'last_name',
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count')
 
     def get_recipes(self, author):
-        recipes_limit = int(self.context['request'].GET.get('recipes_limit', 5))
+        recipes_limit = int(self.context['request'].GET.get(
+            'recipes_limit',
+            5
+        ))
         recipes = Recipe.objects.filter(author=author)[:recipes_limit]
 
         return CropRecipeSerializer(recipes, many=True).data

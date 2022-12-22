@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_list_or_404, get_object_or_404
+from recipe.pagination import LimitPageNumberPagination
 from rest_framework import response, status, viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from .models import Subscription
 from .serializers import SubscriptionSerializer
-from recipe.pagination import LimitPageNumberPagination
 
 User = get_user_model()
 

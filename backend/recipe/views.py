@@ -12,7 +12,7 @@ from .models import (FavoriteRecipe, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Tag)
 from .pagination import LimitPageNumberPagination
 from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
-from .serializers import RecipeSerializer, IngredientSerializer, TagSerializer
+from .serializers import IngredientSerializer, RecipeSerializer, TagSerializer
 from .utils import generate_report
 
 User = get_user_model()
@@ -73,7 +73,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         return generate_report(ingredients_list)
 
-    def add_user_recipe_model(self, user, recipe, model_class, serializer_class):
+    def add_user_recipe_model(self, user, recipe,
+                              model_class, serializer_class):
         if model_class.objects.filter(user=user, recipe=recipe).exists():
             return Response({'errors': 'Этот рецепт уже добавлен в список.'},
                             status=status.HTTP_400_BAD_REQUEST)

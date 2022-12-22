@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-
 from users.serializers import UserSerializer
 
 from .models import Ingredient, Recipe, RecipeIngredient, Tag
@@ -27,7 +26,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
     )
-    
+
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'name', 'measurement_unit', 'amount')
@@ -46,27 +45,27 @@ class RecipeSerializer(serializers.ModelSerializer):
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Recipe
         fields = ('id', 'tags', 'author', 'ingredients', 'is_favorited',
                   'is_in_shopping_cart', 'name', 'image', 'text',
                   'cooking_time')
-    
+
     def get_is_favorited(self, recipe):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
         return Recipe.objects.filter(
             favorites__user=user, id=recipe.id).exists()
-    
+
     def get_is_in_shopping_cart(self, recipe):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
         return Recipe.objects.filter(
             cart__user=user, id=recipe.id).exists()
-    
+
     def create_recipe_ingredients(self, ingredients, recipe):
         recipe_ingredients = []
         for ingredient in ingredients:
@@ -76,7 +75,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 amount=ingredient['amount']
             )
             recipe_ingredients.append(recipe_ingredient)
-        
+
         RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
     def create_recipe(self, validated_data):
@@ -87,7 +86,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         recipe.tags.set(tags)
         self.create_recipe_ingredients(recipe, ingredients)
         return recipe
-    
+
     def update_recipe(self, recipe, validated_data):
         recipe.image = validated_data.get('image', recipe.image)
         recipe.name = validated_data.get('name', recipe.name)
