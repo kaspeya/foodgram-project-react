@@ -19,12 +19,14 @@ User = get_user_model()
 
 
 class TagsViewSet(ReadOnlyModelViewSet):
+    pagination_class = None
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
 
 class IngredientsViewSet(ReadOnlyModelViewSet):
+    pagination_class = None
     permission_classes = (IsAdminOrReadOnly,)
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
