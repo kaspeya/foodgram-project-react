@@ -3,7 +3,14 @@
 
 #### Проект доступен по ссылке:
 
-[клик](http://130.193.36.243/admin/)
+[Админка](http://62.84.119.109/admin/)<br/>
+```
+Адрес электронной почты:admin@foodgram.com
+Пароль: admin
+
+```
+[API](http://62.84.119.109/api/)<br/>
+Документация в формате [ReDoc](http://62.84.119.109/api/docs/)<br/>
 
 ## Описание: 
 
@@ -44,7 +51,7 @@ docker-compose exec backend  python manage.py migrate
 ``` 
 Создатйте суперпользователя:
 ``` 
-docker-compose exec backend  python manage.py createsuperuser
+docker-compose exec backend python manage.py createsuperuser
 ``` 
 Соберите статику:
 ``` 
