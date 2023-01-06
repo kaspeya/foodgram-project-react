@@ -1,5 +1,6 @@
 from django.core.management import BaseCommand
-from recipe.models import Tag
+
+from recipes.models import Tag
 
 
 class Command(BaseCommand):
@@ -9,17 +10,17 @@ class Command(BaseCommand):
         data = [
             {
                 'name': 'Завтрак',
-                'hex_color_code': '#E26C2D',
+                'color': '#E26C2D',
                 'slug': 'breakfast'
             },
             {
                 'name': 'Обед',
-                'hex_color_code': '#49B64E',
+                'color': '#49B64E',
                 'slug': 'dinner'
             },
             {
                 'name': 'Ужин',
-                'hex_color_code': '#8775D2',
+                'color': '#8775D2',
                 'slug': 'supper'
             }
         ]
