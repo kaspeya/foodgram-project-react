@@ -1,17 +1,6 @@
 ![example event parameter](https://github.com/kaspeya/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg?event=push)
 # FoodGram ( docker-compose )
 
-#### Проект доступен по ссылке:
-
-[КЛИК](http://62.84.119.109/)<br/>
-[API](http://62.84.119.109/api/)<br/>
-[Документация в формате ReDoc](http://62.84.119.109/api/docs/)<br/>
-[Админка](http://62.84.119.109/admin/)<br/>
-```
-Адрес электронной почты:admin@foodgram.com
-Пароль: admin
-```
-
 ## Описание: 
 
 Foodgram - это сервис, который реализован для публикации рецептов. Авторизованные пользователи могут подписываться на понравившихся авторов, добавлять рецепты в избранное, в покупки, скачать список покупок ингредиентов для добавленных в покупки рецептов.
